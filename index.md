@@ -2,29 +2,29 @@
 
 - 役割
   - インデックス作成
-  - ドキュメント追加(addDocument())
-  - ドキュメント削除(deleteDocuments())
-  - ドキュメント更新(updateDocument())（ドキュメント全体を削除してから追加）
+  - ドキュメント追加: `addDocument()`
+  - ドキュメント削除: `deleteDocuments()`
+  - ドキュメント更新（ドキュメント全体を削除してから追加）: `updateDocument()`
 - スレッドセーフ
 - １つのインデックスにつき１インスタンス
-- IndexWriterConfigにすべての設定が保存されており、IndexWriter作成後にIndexWriterConfigを変更してもIdexWriterのインスタンスには影響しない
-- インデックスの変更はメモリにバッファされ、定期的にDirectoryにフラッシュされる
+- `IndexWriterConfig` にすべての設定が保存されており、`IndexWriter` 作成後に`IndexWriterConfig` を変更しても `IdexWriter` のインスタンスには影響しない
+- インデックスの変更はメモリにバッファされ、定期的に `Directory` にフラッシュされる
 - フラッシュはRAMの使用量かドキュメントの数でトリガーされるが、大きなRAMでRAM使用量をバッファする方法が最速
-- フラッシュはIndexWriterの内部バッファ状態をインデックスに移動させるだけで、commit()かclose()が呼ばれるまでIndexReaderからは見えない
+- フラッシュは `IndexWriter` の内部バッファ状態をインデックスに移動させるだけで、`commit()` か `close()` が呼ばれるまで `IndexReader` からは見えない
 
 # IndexReader
 
 - ある時点のインデックスを表示するための抽象クラス
-- IndexWriterに使ってインデックスに加えられた変更は、新しいIndexReaderがオープンされるまで表示されない
-- 通常はDirectoryReader.open()でインスタンス化される
-- 多くのスレッドセーフなリーダーはライターと同時にDirectoryReader.open()を実行できる
-- IndexReaderは2種類ある
-  - LeafReader
+- `IndexWriter` に使ってインデックスに加えられた変更は、新しい `IndexReader` がオープンされるまで表示されない
+- 通常は `DirectoryReader.open()` でインスタンス化される
+- 多くのスレッドセーフなリーダーはライターと同時に `DirectoryReader.open()` を実行できる
+- `IndexReader` は2種類ある
+  - `LeafReader`
     - 単一セグメントのためのリーダー
     - サブリーダーを持たないアトミックなリーダー
-  - CompositeReader
-    - サブリーダー（LeafReader）からフィールドを取得するためだけに使用される
-    - 具体的にはすべてのサブリーダーのLeafReaderContextをIndexReader.leavse()で取得する
+  - `CompositeReader`
+    - サブリーダー（ `LeafReader` ）からフィールドを取得するためだけに使用される
+    - 具体的にはすべてのサブリーダーの `LeafReaderContextをIndexReader.leavse()` で取得する
 
 # Segments and docids
 
@@ -38,11 +38,11 @@
 
 ## docid
 
-- 各ドキュメントは「docid」と呼ばれる32ビットの番号で識別される
+- 各ドキュメントは `docid` と呼ばれる32ビットの番号で識別される
 - docidにはグローバルなものとセグメント内のものの2種類ある
   - グローバルdocid = セグメント内のdocid + 各セグメントに割り当てられたベースdocid
 - 外部のハイレベルなAPIはグローバルなdocidしか扱えない
-- 単一セグメントのためのリーダーであるLeafReaderを参照する内部APIはセグメントごとのdocidを扱う
+- 単一セグメントのためのリーダーである `LeafReader` を参照する内部APIはセグメントごとのdocidを扱う
 - セグメント内のdocidは0から連番で割り当てられるので、セグメント内のドキュメント数は最大docidと同じ（0から始まるのに同じになるの？？？）
   - 削除されたドキュメントのdocidは、そのセグメントがマージされるまで保持される
 - セグメントがマージされると、ドキュメントには新しい連番のdocidが割り当てられる
